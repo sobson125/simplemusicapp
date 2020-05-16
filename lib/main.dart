@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-//import 'package:audioplayers/audioplayers.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers/audio_cache.dart';
 
 void main() => runApp(MyApp());
@@ -34,41 +34,63 @@ class _ButtonsState extends State<Buttons> {
   int currentIndex = 0;
   int colorCount = colors.length;
 
-  Widget createButton(int i) {
-    return Expanded(
-        child: RaisedButton(
-      onPressed: () {
-        playNote(i);
-        setState(() {
-          if (currentIndex == 0 || currentIndex == colorCount - 1) {
-            currentIndex = 1;
-          }
-        });
-      },
-      color: colors[currentIndex],
-      child: Text('Note$i'),
-    ));
-  }
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          createButton(1),
-          createButton(2),
-          createButton(3),
-          createButton(4),
-          createButton(5),
-          createButton(6),
-          createButton(7),
-          createButton(8),
-          createButton(9),
-          createButton(10),
-          createButton(11),
-          createButton(12),
+          new PlayButton(1),
+          new PlayButton(2),
+          new PlayButton(3),
+          new PlayButton(4),
+          new PlayButton(5),
+          new PlayButton(6),
+          new PlayButton(7),
+          new PlayButton(8),
+          new PlayButton(9),
+          new PlayButton(10),
+          new PlayButton(11),
+          new PlayButton(12),
         ],
+      ),
+    );
+  }
+}
+
+class PlayButton extends StatefulWidget {
+  final int i;
+
+  PlayButton(this.i);
+
+  @override
+  _PlayButtonState createState() => _PlayButtonState();
+}
+
+class _PlayButtonState extends State<PlayButton> {
+  bool active = false;
+  static final AudioCache cachePlayer = new AudioCache();
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: RaisedButton(
+        onPressed: () async {
+          setState(() {
+            active = true;
+          });
+
+          AudioPlayer audioPlayer =
+              await cachePlayer.play('sound${widget.i}.wav');
+
+          audioPlayer.onPlayerCompletion.listen((event) {
+            setState(() {
+              active = false;
+            });
+          });
+        },
+        color: active ? Colors.green : Colors.red,
+        child: Text('Note ${widget.i}'),
       ),
     );
   }
